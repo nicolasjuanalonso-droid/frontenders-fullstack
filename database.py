@@ -25,7 +25,7 @@ def init_db():
             own_metadata TEXT
         )
     ''')
-
+ 
     # Cria a tabela "pads" se não existir
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS pads (

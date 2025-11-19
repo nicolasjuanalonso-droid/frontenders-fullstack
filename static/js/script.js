@@ -104,7 +104,7 @@ const googleLogout = async () => {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json', },
-                    body: JSON.stringify({ action: "logout" })
+                    body: JSON.stringify({ action: "logout", redirectTo: redirectOnLogout })
                 });
 
                 backendLogoutSuccess = response.ok;
@@ -114,6 +114,8 @@ const googleLogout = async () => {
                 } else {
                     showLogs && console.log('Cookie removido pelo backend.');
                 }
+
+                window.location.href = '/';
             } catch (err) {
                 showLogs && console.warn('Erro ao comunicar com backend:', err);
                 backendLogoutSuccess = false;
@@ -121,26 +123,7 @@ const googleLogout = async () => {
         }
 
         // Logout do Firebase (independente do backend)
-        try {
-            await auth.signOut();
-            showLogs && console.log('Logout do Firebase concluído.');
-        } catch (err) {
-            showLogs && console.error('Erro ao fazer signOut no Firebase:', err);
-            return;
-        }
-
-        // Redirecionar apenas se tudo (ou o essencial) deu certo
-        if (backendLogoutSuccess || !apiLogoutEndpoint) {
-            if (redirectOnLogout) {
-                window.location.href = redirectOnLogout;
-            }
-        } else {
-            // Opcional: redirecionar mesmo assim, ou mostrar aviso
-            showLogs && console.error('Logout parcial: sessão local limpa, mas cookie pode persistir.', err);
-            if (redirectOnLogout) {
-                window.location.href = redirectOnLogout;
-            }
-        }
+        await auth.signOut();
 
     } catch (error) {
         showLogs && console.error("Erro inesperado no logout:", error);
