@@ -1,8 +1,8 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyBHC6fxBShUXjcdjBFjJ8k1bF34HKKVP3c",
-  authDomain: "frontenders-1d1c1.firebaseapp.com",
-  projectId: "frontenders-1d1c1",
-  storageBucket: "frontenders-1d1c1.firebasestorage.app",
-  messagingSenderId: "991944134559",
-  appId: "1:991944134559:web:df606bb7575a07489e77aa"
+  apiKey: "AIzaSyCJjHN0-JfZNpSi3slEBgzQvR3NtdQR-BM",
+  authDomain: "frontenders-56cae.firebaseapp.com",
+  projectId: "frontenders-56cae",
+  storageBucket: "frontenders-56cae.firebasestorage.app",
+  messagingSenderId: "975807831715",
+  appId: "1:975807831715:web:b7ed3fd0d6b9bb1e4a2916"
 };

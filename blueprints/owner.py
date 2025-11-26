@@ -1,10 +1,11 @@
 # blueprints/owner.py
+
 import sqlite3
 from flask import Blueprint, make_response, redirect, request, jsonify, url_for
 
 from database import DB_NAME
 
-owner_bp = Blueprint('owner', __name__)
+owner_bp = Blueprint('owner', __name__, url_prefix='/owner')
 
 @owner_bp.route('/login', methods=['POST'])
 def owner_login():
