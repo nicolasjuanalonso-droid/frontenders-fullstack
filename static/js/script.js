@@ -1,4 +1,5 @@
 /**
+ * static\js\script.js
  * JavaScript do layout.
  * Template com autenticação de usuário pelo Google.
  * Referências desta página: https://firebase.google.com/docs/build?hl=pt-br
@@ -29,9 +30,8 @@ const userClickId = 'userInOutLink';
  * - Se "firebase", faz a persistência no projeto atual do Firebase Firestore, na coleção `Users`;
  */
 // const apiLoginEndpoint = 'firebase';
-// const apiLoginEndpoint = '';
 const apiLoginEndpoint = '/owner/login';
-
+// const apiLoginEndpoint = '';
 
 /** 
  * Configuração: rota de logout
@@ -46,15 +46,13 @@ const apiLoginEndpoint = '/owner/login';
 // const apiLogoutEndpoint = '';
 const apiLogoutEndpoint = '/owner/logout';
 
-
 /**
  * Configuração: URL / rota da página inicial do aplicativo
  * Informa para onde o usuário será enviado após o logout
  * - Se vazio, não faz nada
  */
-// const redirectOnLogout = 'index.html'
-// const redirectOnLogout = '/'
-const redirectOnLogout = ''
+// const redirectOnLogout = ""
+const redirectOnLogout = "/"
 
 /**
  * Configuração: mostra logs das ações no console
@@ -106,7 +104,7 @@ const googleLogout = async () => {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json', },
-                    body: JSON.stringify({ action: "logout", redirectTo: "redirectOnLogout" })
+                    body: JSON.stringify({ action: "logout", redirectTo: redirectOnLogout })
                 });
 
                 backendLogoutSuccess = response.ok;
@@ -116,6 +114,8 @@ const googleLogout = async () => {
                 } else {
                     showLogs && console.log('Cookie removido pelo backend.');
                 }
+
+                window.location.href = '/';
             } catch (err) {
                 showLogs && console.warn('Erro ao comunicar com backend:', err);
                 backendLogoutSuccess = false;
@@ -123,12 +123,7 @@ const googleLogout = async () => {
         }
 
         // Logout do Firebase (independente do backend)
-        // Não adianta processar nada após isso porque passa o controle para onAuthStateChanged
         await auth.signOut();
-
-        if (redirectOnLogout != '') {
-            location.href = redirectOnLogout;
-        }
 
     } catch (error) {
         showLogs && console.error("Erro inesperado no logout:", error);
@@ -146,9 +141,10 @@ const handleUserInOutClick = (event) => {
     if (user) {
         // Usuário LOGADO clica no avatar
         if (loggedUserAction == '') {
-            // Opção para fazer logout: Mostra o modal de confirmação
-            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
-            logoutModal.show();
+            // Opção para fazer logout
+            if (confirm("Tem certeza que deseja sair do aplicativo?")) {
+                googleLogout()
+            }
         } else {
             // Opção que redireciona para outra rota
             window.location.href = loggedUserAction;
@@ -165,7 +161,7 @@ const updateUI = (user) => {
         // Usuário LOGADO: Mostra o Avatar
 
         // Atualiza o elemento <img> com o avatar do usuário (photoURL)
-        const avatarImg = `<img src="${user.photoURL || 'static/img/user.png'}" alt="${user.displayName || 'Avatar do Usuário'}" class="rounded-circle avatar-sm" referrerpolicy="no-referrer">`;
+        const avatarImg = `<img src="${user.photoURL || '/static/img/user.png'}" alt="${user.displayName || 'Avatar do Usuário'}" class="rounded-circle avatar-sm" referrerpolicy="no-referrer">`;
 
         // Atualiza o elemento <span> com nome do usuário (displayName)
         const loginSpan = `<span class="d-md-none ms-3">${user.displayName || 'Usuário logado'}</span>`;
@@ -199,7 +195,7 @@ const updateUI = (user) => {
         // Usuário DESLOGADO: Mostra a imagem padrão
 
         // Cria o elemento <img> (ícone)
-        const icon = `<img src="static/img/user.png" alt="Logue-se com o Google" class="rounded-circle avatar-sm">`;
+        const icon = `<img src="/static/img/user.png" alt="Logue-se com o Google" class="rounded-circle avatar-sm">`;
 
         // Cria o elemento <span>
         const loginSpan = `<span class="d-md-none ms-3">Login com Google</span>`;
@@ -344,46 +340,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Funções para cookies
-function setCookie(n, v, d) {
-    let e = "";
-    if (d) {
-        const dt = new Date();
-        dt.setTime(dt.getTime() + d * 864e5);
-        e = "; expires=" + dt.toUTCString();
+// Fecha caixas de alerta após 5 segundos
+const delayInMilliseconds = 5000;
+document.addEventListener('DOMContentLoaded', function () {
+    const alertElement = document.getElementById('baseMainAlert');
+    if (alertElement) {
+        const bsAlert = new bootstrap.Alert(alertElement);
+        setTimeout(function () { bsAlert.close(); }, delayInMilliseconds);
     }
-    document.cookie = `${n}=${v || ""}${e}; path=/`;
-}
-
-function getCookie(n) {
-    return document.cookie.split(';').reduce((a, c) => {
-        c = c.trim();
-        return c.startsWith(n + '=') ? c.slice(n.length + 1) : a;
-    }, null);
-}
-
-// Lógica do banner de aceitação dos cookies
-addEventListener('DOMContentLoaded', () => {
-    const b = document.getElementById('acceptCookies');
-    const a = document.getElementById('acceptCookiesBtn');
-    const r = document.getElementById('rejectCookiesBtn');
-    if (b && a && r) {
-        if (getCookie('accept_cookies')) b.classList.add('d-none');
-        else b.classList.remove('d-none');
-        a.addEventListener('click', () => { setCookie('accept_cookies', 'accept', 365); b.classList.add('d-none'); });
-        r.addEventListener('click', () => { setCookie('accept_cookies', 'reject', 365); b.classList.add('d-none'); });
-    }
-});
-
-// Listener para o botão de confirmação no modal (adicione isso fora da função, no final do script.js)
-document.getElementById('confirmLogoutBtn').addEventListener('click', () => {
-    googleLogout();
-    const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
-    logoutModal.hide();
 });
 
 // Listener para o estado de autenticação
-// Este listener é executado sempre que o estado de autenticação do usuário muda.
+// Este listener é executado sempre que o estado do usuário (logado/deslogado) muda.
 auth.onAuthStateChanged((user) => {
     updateUI(user);
 
